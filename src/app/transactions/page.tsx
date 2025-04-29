@@ -69,6 +69,14 @@ const TransactionsPage = () => {
         }
     };
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Month is 0-indexed
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     useEffect(() => {
         fetchTransactions();
     }, []);
@@ -102,8 +110,7 @@ const TransactionsPage = () => {
                                     className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between mb-2 mr-2"
                                 >
                                     <CardTitle className="w-full md:w-[70%]">
-                                        ₹{tran.amount} - {tran.description} ({tran.category}) on{" "}
-                                        {new Date(tran.date).toLocaleDateString()}
+                                        ₹{tran.amount} - {tran.description} ({tran.category}) on {formatDate(tran.date)}
                                     </CardTitle>
                                     <div className="w-full md:w-[30%] flex justify-end gap-2 mt-2 md:mt-0">
                                         <Button className="px-4" onClick={() => setEditTransaction(tran)}>

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 export async function GET() {
     try {
         await connectDB();
-        const recentTransactions = await Transaction.find().sort({ date: -1 }).limit(8);
+        const recentTransactions = await Transaction.find().sort({ date: -1 }).limit(6);
         const transactions = await Transaction.find().sort({ date: -1 });
         return NextResponse.json({ recentTransactions, transactions }, { status: 200 });
     } catch (error) {
