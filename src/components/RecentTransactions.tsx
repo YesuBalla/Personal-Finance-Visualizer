@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { BanknoteArrowDown, IndianRupee } from "lucide-react";
 import { Loader } from "./Loader";
+import { useAppStore } from "@/stores/appStore";
 
 interface RecentTransaction {
     _id: Key | null | undefined;
@@ -19,6 +20,7 @@ const RecentTransactions = () => {
     const [recentTransactions, setRecentTransactions] = useState<RecentTransaction[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [Err, setErr] = useState<string | null>(null);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -34,8 +36,8 @@ const RecentTransactions = () => {
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
-    console.log(recentTransactions)
+    }, [dataChanged]);
+
     return (
         <div>
             <h1 className="text-lg font-medium mb-6">Recent Transactions</h1>

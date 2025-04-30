@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Key } from "react";
 import axios from "axios";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { Plus } from "lucide-react";
 import { Loader } from "@/components/Loader";
 import AddTransaction from "@/components/AddTransaction";
 import AppPieChart from "@/components/AppPieChart";
+import { useAppStore } from "@/stores/appStore";
 
 interface Transaction {
     _id: Key | null | undefined;
@@ -25,30 +25,37 @@ interface Transaction {
 
 const TransactionsPage = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-
+    const [loading, setLoading] = useState(false);
     const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
     const [deleteId, setDeleteId] = useState<Key | null>(null);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
-    const fetchTransactions = async () => {
-        setLoading(true);
-        try {
-            const res = await axios.get("/api/transactions");
-            setTransactions(res.data.transactions);
-        } catch (error) {
-            setError("Failed to fetch transactions");
-        } finally {
-            setLoading(false);
-        }
-    };
+    useEffect(() => {
+        const fetchTransactions = async () => {
+            setLoading(true);
+            try {
+                const res = await axios.get("/api/transactions");
+                setTransactions(
+                    res.data.transactions.sort(
+                        (a: Transaction, b: Transaction) => new Date(b.date).getTime() - new Date(a.date).getTime()
+                    )
+                );
+            } catch (error) {
+                console.error("Failed to fetch transactions", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTransactions();
+    }, [dataChanged]);
 
     const handleDelete = async () => {
         if (!deleteId) return;
         try {
             await axios.delete(`/api/transactions/${deleteId}`);
             setDeleteId(null);
-            fetchTransactions();
+            useAppStore.getState().setDataChanged(true);
         } catch (error) {
             console.error("Failed to delete transaction", error);
         }
@@ -63,26 +70,14 @@ const TransactionsPage = () => {
                 category: editTransaction.category,
             });
             setEditTransaction(null);
-            fetchTransactions();
+            useAppStore.getState().setDataChanged(true);
         } catch (error) {
             console.error("Failed to update transaction", error);
         }
     };
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, "0");
-        const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Month is 0-indexed
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-
-    useEffect(() => {
-        fetchTransactions();
-    }, []);
-
     return (
-        <div className="">
+        <div>
             <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
                 <div className="lg:col-span-2 xl:col-span-2 2xl:col-span-3 flex items-center justify-between mb-5">
                     <h1 className="text-3xl font-bold">All Transactions</h1>
@@ -93,7 +88,7 @@ const TransactionsPage = () => {
                                 Add Transaction
                             </Button>
                         </SheetTrigger>
-                        <AddTransaction onTransactionAdded={fetchTransactions} />
+                        <AddTransaction />
                     </Sheet>
                 </div>
             </div>
@@ -104,20 +99,20 @@ const TransactionsPage = () => {
                         <Loader />
                     ) : (
                         <ScrollArea className="max-h-[500px] mt-4 overflow-y-auto">
-                            {transactions?.map((tran) => (
+                            {transactions.map((tran) => (
                                 <Card
                                     key={tran._id}
                                     className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between mb-2 mr-2"
                                 >
                                     <CardTitle className="w-full md:w-[70%]">
-                                        ₹{tran.amount} - {tran.description} ({tran.category}) on {formatDate(tran.date)}
+                                        ₹{tran.amount} - {tran.description} ({tran.category}) on{" "}
+                                        {new Date(tran.date).toLocaleDateString()}
                                     </CardTitle>
                                     <div className="w-full md:w-[30%] flex justify-end gap-2 mt-2 md:mt-0">
                                         <Button className="px-4" onClick={() => setEditTransaction(tran)}>
                                             Edit
                                         </Button>
 
-                                        {/* Delete confirmation */}
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <Button
@@ -136,16 +131,10 @@ const TransactionsPage = () => {
                                                     </DialogHeader>
                                                     <div>Are you sure you want to delete this transaction?</div>
                                                     <DialogFooter className="mt-4">
-                                                        <Button
-                                                            variant="outline"
-                                                            onClick={() => setDeleteId(null)}
-                                                        >
+                                                        <Button variant="outline" onClick={() => setDeleteId(null)}>
                                                             Cancel
                                                         </Button>
-                                                        <Button
-                                                            variant="destructive"
-                                                            onClick={handleDelete}
-                                                        >
+                                                        <Button variant="destructive" onClick={handleDelete}>
                                                             Delete
                                                         </Button>
                                                     </DialogFooter>
@@ -159,12 +148,11 @@ const TransactionsPage = () => {
                     )}
                 </div>
 
-                <div className="bg-primary-foreground p-4 rounded-lg">
+                <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-2 xl:col-span-2 2xl:col-span-3">
                     <AppPieChart />
                 </div>
             </div>
 
-            {/* Edit Transaction Sheet */}
             {editTransaction && (
                 <Sheet open={true} onOpenChange={(open) => !open && setEditTransaction(null)}>
                     <SheetContent>
@@ -175,7 +163,6 @@ const TransactionsPage = () => {
                                 <Label>Amount</Label>
                                 <Input
                                     type="number"
-                                    placeholder="Amount"
                                     value={editTransaction.amount}
                                     onChange={(e) =>
                                         setEditTransaction({ ...editTransaction, amount: +e.target.value })
@@ -186,7 +173,6 @@ const TransactionsPage = () => {
                             <div className="space-y-2">
                                 <Label>Description</Label>
                                 <Input
-                                    placeholder="Description"
                                     value={editTransaction.description}
                                     onChange={(e) =>
                                         setEditTransaction({ ...editTransaction, description: e.target.value })
@@ -197,7 +183,6 @@ const TransactionsPage = () => {
                             <div className="space-y-2">
                                 <Label>Category</Label>
                                 <Input
-                                    placeholder="Category"
                                     value={editTransaction.category}
                                     onChange={(e) =>
                                         setEditTransaction({ ...editTransaction, category: e.target.value })

@@ -14,7 +14,7 @@ import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import axios from "axios"
 import { LoaderIcon } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 // Schema for Category validation
 const categorySchema = z.object({
@@ -24,7 +24,7 @@ const categorySchema = z.object({
         .max(50, "Category name must be less than 50 characters")
         .regex(/^[A-Z]/, "Category name must start with an uppercase letter"),
 });
-const AddCategory = () => {
+const AddCategory = ({ onClose }: { onClose: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [err, setErr] = useState<string | null>(null);
     const form = useForm<z.infer<typeof categorySchema>>({
@@ -40,8 +40,9 @@ const AddCategory = () => {
             await axios.post("/api/categories/add", data);
             form.reset();
             setErr('')
+            onClose();
         } catch (error) {
-            setErr(error.response.data.message)
+            setErr(error.message)
         } finally {
             setIsSubmitting(false);
         }

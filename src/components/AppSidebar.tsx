@@ -1,7 +1,6 @@
 "use client"
-import { useState, useEffect } from "react";
-import axios from "axios";
 
+import { useState } from "react"
 import { BadgeIndianRupee, BanknoteArrowDown, BriefcaseBusiness, ChevronDown, ChevronUp, LayoutDashboard, Plus, Projector, Sparkles, User2 } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from "./ui/sidebar"
 import Link from "next/link"
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/sheet"
 import AddTransaction from "./AddTransaction"
 import AddCategory from "./AddCategory"
+
 const items = [
   {
     title: 'Dashboard',
@@ -43,20 +43,9 @@ const items = [
   },
 ]
 const AppSidebar = () => {
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [transactionSheetOpen, setTransactionSheetOpen] = useState(false);
+  const [categorySheetOpen, setCategorySheetOpen] = useState(false);
 
-  const fetchTransactions = async () => {
-    try {
-      const res = await axios.get("/api/transactions");
-      setTransactions(res.data.transactions);
-    } catch (error) {
-      console.error("Failed to fetch transactions:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="py-4">
@@ -108,14 +97,14 @@ const AppSidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <Sheet>
+                <Sheet open={transactionSheetOpen} onOpenChange={setTransactionSheetOpen}>
                   <SheetTrigger asChild>
-                    <SidebarMenuButton>
+                    <SidebarMenuButton onClick={() => setTransactionSheetOpen(true)}>
                       <Plus />
                       Add Transaction
                     </SidebarMenuButton>
                   </SheetTrigger>
-                  <AddTransaction onTransactionAdded={fetchTransactions} />
+                  <AddTransaction onClose={() => setTransactionSheetOpen(false)} />
                 </Sheet>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -142,14 +131,14 @@ const AppSidebar = () => {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <Sheet>
+                    <Sheet open={categorySheetOpen} onOpenChange={setCategorySheetOpen}>
                       <SheetTrigger asChild>
-                        <SidebarMenuButton>
+                        <SidebarMenuButton onClick={() => setCategorySheetOpen(true)}>
                           <Plus />
                           Add Category
                         </SidebarMenuButton>
                       </SheetTrigger>
-                      <AddCategory />
+                      <AddCategory onClose={() => setCategorySheetOpen(false)} />
                     </Sheet>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -157,42 +146,7 @@ const AppSidebar = () => {
             </CollapsibleContent>
           </SidebarGroup>
         </Collapsible>
-        {/* NESTED */}
-        {/* <SidebarGroup>
-          <SidebarGroupLabel>
-            Nested Items
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href='/#'>
-                    <Projector />
-                    See all Transactions
-                  </Link>
-                </SidebarMenuButton>
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href='/#'>
-                        <Plus />
-                        Add Transaction
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild>
-                      <Link href='/#'>
-                        <Plus />
-                        Add Category
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup> */}
+
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>

@@ -22,6 +22,7 @@ import { Button } from "./ui/button"
 import axios from "axios"
 import { LoaderIcon } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useAppStore } from "@/stores/appStore";
 
 export const transactionSchema = z.object({
     amount: z.preprocess(
@@ -38,13 +39,12 @@ export const transactionSchema = z.object({
     category: z.string(),
 });
 
-interface AddTransactionProps {
-    onTransactionAdded: () => void;
-}
 
-const AddTransaction = ({ onTransactionAdded }: AddTransactionProps) => {
+const AddTransaction = ({ onClose }: { onClose: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [categories, setCategories] = useState<string[]>([]);
+    const toggleDataChanged = useAppStore((state) => state.toggleDataChanged);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     const form = useForm<z.infer<typeof transactionSchema>>({
         resolver: zodResolver(transactionSchema),
@@ -61,12 +61,14 @@ const AddTransaction = ({ onTransactionAdded }: AddTransactionProps) => {
         try {
             await axios.post("/api/transactions", data);
             form.reset();
-            onTransactionAdded();  // <-- REFRESH the data
+            onClose();
         } catch (error) {
             console.error("Failed to submit transaction:", error);
         } finally {
             setIsSubmitting(false);
         }
+
+        toggleDataChanged();
     };
 
     const fetchCategories = async () => {
@@ -80,7 +82,7 @@ const AddTransaction = ({ onTransactionAdded }: AddTransactionProps) => {
 
     useEffect(() => {
         fetchCategories();
-    }, []);
+    }, [dataChanged]);
 
     return (
         <SheetContent>

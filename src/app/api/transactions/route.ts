@@ -16,8 +16,8 @@ export async function POST(req: Request) {
 export async function GET() {
     try {
         await connectDB();
-        const recentTransactions = await Transaction.find().sort({ date: -1 }).limit(6);
-        const transactions = await Transaction.find().sort({ date: -1 });
+        const recentTransactions = await Transaction.find().sort({ date: -1, _id: -1 }).limit(6);
+        const transactions = await Transaction.find().sort({ date: -1, _id: -1 });
         return NextResponse.json({ recentTransactions, transactions }, { status: 200 });
     } catch (error) {
         return NextResponse.json({ error: 'Server Error' }, { status: 500 });
