@@ -15,7 +15,7 @@ export async function POST(req) {
         await newCategory.save();
 
         return NextResponse.json(newCategory, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: 'Server Error' }, { status: 500 });
     }
 }

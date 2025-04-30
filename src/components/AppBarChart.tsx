@@ -14,9 +14,13 @@ import {
 import {
     ChartConfig,
     ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
+import { useAppStore } from "@/stores/appStore";
+import { Loader } from "./Loader";
 
 
 const chartConfig = {
@@ -39,6 +43,7 @@ const AppBarChart = () => {
     const [chartData, setChartData] = useState<ChartData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [Err, setErr] = useState<string | null>(null);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -49,7 +54,7 @@ const AppBarChart = () => {
             // Group data by month
             const groupedData = groupDataByMonth(data);
             setChartData(groupedData);
-        } catch (error) {
+        } catch (error: any) {
             setErr("Failed to fetch transactions");
         } finally {
             setLoading(false);
@@ -78,7 +83,7 @@ const AppBarChart = () => {
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [dataChanged]);
 
     const totalAmount = chartData.reduce((total, item) => total + item.amount, 0);
     const percentageChange = calculatePercentageChange();
@@ -93,26 +98,32 @@ const AppBarChart = () => {
                 <CardTitle>Monthly Expenses</CardTitle>
                 <CardDescription>{monthsRange}</CardDescription>
             </CardHeader>
-            <CardContent>
-                <ChartContainer config={chartConfig}>
-                    <BarChart accessibilityLayer data={chartData}>
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="month"
-                            tickLine={false}
-                            tickMargin={10}
-                            axisLine={false}
-                            tickFormatter={(value) => value.slice(0, 3)} // Display first 3 letters of the month
-                        />
-                        <Tooltip content={<ChartTooltipContent hideLabel />} />
-                        <Bar
-                            dataKey="amount"
-                            fill="var(--color-desktop)"
-                            radius={8}
-                        />
-                    </BarChart>
-                </ChartContainer>
-            </CardContent>
+            {loading ? <Loader /> : (
+                <CardContent>
+                    <ChartContainer config={chartConfig} className="w-full max-w-4xl mx-auto px-4 pb-4">
+                        <BarChart data={chartData} width={600} height={350}>
+                            <CartesianGrid vertical={false} />
+                            <XAxis
+                                dataKey="month"
+                                tickLine={false}
+                                tickMargin={12}
+                                axisLine={false}
+                                interval={0}
+                                tickFormatter={(value) => value.slice(0, 3)}
+                            />
+                            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dashed" />} />
+                            <ChartLegend content={<ChartLegendContent />} />
+                            <Bar
+                                dataKey="amount"
+                                fill="var(--color-desktop)"
+                                radius={5}
+                                barSize={40}
+                            />
+                        </BarChart>
+                    </ChartContainer>
+                </CardContent>
+            )}
+
             <CardFooter className="flex-col items-start gap-2 text-sm">
                 <div className="flex gap-2 font-medium leading-none">
                     {percentageChange >= 0 ? "Trending +" : "Trending "}

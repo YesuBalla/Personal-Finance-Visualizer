@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const transaction = await Transaction.create(body);
         return NextResponse.json(transaction, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: 'Server Error' }, { status: 500 });
     }
 }
@@ -19,7 +19,7 @@ export async function GET() {
         const recentTransactions = await Transaction.find().sort({ date: -1, _id: -1 }).limit(6);
         const transactions = await Transaction.find().sort({ date: -1, _id: -1 });
         return NextResponse.json({ recentTransactions, transactions }, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: 'Server Error' }, { status: 500 });
     }
 }

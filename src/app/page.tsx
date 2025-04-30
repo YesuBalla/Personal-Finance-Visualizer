@@ -5,11 +5,22 @@ import RecentTransactions from "@/components/RecentTransactions"
 
 const Homepage = () => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 2xl:grid-cols-4 gap-4">
-      <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-3 xl:col-span-2 2xl:col-span-3"><ComparisonChart /></div>
-      <div className="bg-primary-foreground p-4 rounded-lg"><RecentTransactions /></div>
-      <div className="bg-primary-foreground p-4 rounded-lg"><AppPieChart /></div>
-      <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-3 xl:col-span-2 2xl:col-span-3"><AppBarChart /></div>
+    <div className="grid grid-cols-1 xl:grid-cols-6 gap-4">
+      <div className="col-span-1 xl:col-span-4 bg-primary-foreground p-6 rounded-2xl shadow-sm">
+        <ComparisonChart />
+      </div>
+
+      <div className="col-span-1 xl:col-span-2 bg-primary-foreground p-6 rounded-2xl shadow-sm">
+        <RecentTransactions />
+      </div>
+
+      <div className="col-span-1 xl:col-span-2 bg-primary-foreground p-6 rounded-2xl shadow-sm">
+        <AppPieChart />
+      </div>
+
+      <div className="col-span-1 xl:col-span-4 bg-primary-foreground p-6 rounded-2xl shadow-sm">
+        <AppBarChart />
+      </div>
     </div>
   )
 }

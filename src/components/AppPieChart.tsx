@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Pie, PieChart, Label } from "recharts";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Loader } from "@/components/Loader";
+import { useAppStore } from "@/stores/appStore";
 
 const chartConfig = {
     totalAmount: { label: "TotalAmount" },
@@ -19,11 +20,12 @@ const chartConfig = {
 const AppPieChart = () => {
     const [chartData, setChartData] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    const [err, setError] = useState<string | null>(null);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [dataChanged]);
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -32,8 +34,8 @@ const AppPieChart = () => {
             const data = res.data.transactions;
             const groupedData = aggregateData(data);
             setChartData(groupedData);
-        } catch (error) {
-            setError("Failed to fetch transactions");
+        } catch (error: any) {
+            setError("Failed to fetch transactions", error);
         } finally {
             setLoading(false);
         }
@@ -85,12 +87,16 @@ const AppPieChart = () => {
                 ) : (
                     <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[250px]">
                         <PieChart>
-                            <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                            <ChartTooltip
+                                cursor={false}
+                                content={<ChartTooltipContent indicator="dashed" />}
+                            />
+                            <ChartLegend content={<ChartLegendContent />} />
                             <Pie
                                 data={chartData}
                                 dataKey="value"
                                 nameKey="name"
-                                innerRadius={60}
+                                innerRadius={40}
                                 strokeWidth={5}
                             >
                                 <Label
@@ -106,7 +112,7 @@ const AppPieChart = () => {
                                                     <tspan
                                                         x={viewBox.cx}
                                                         y={viewBox.cy}
-                                                        className="fill-foreground text-3xl font-bold"
+                                                        className="fill-foreground text-xl font-bold"
                                                     >
                                                         {formatAmount(totalAmount)}
                                                     </tspan>

@@ -6,10 +6,10 @@ import { NextResponse } from "next/server";
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
     try {
         await connectDB();
-        const { id } = params;
-        await Transaction.findByIdAndDelete(id);
+        const { _id } = params;
+        await Transaction.findByIdAndDelete(_id);
         return NextResponse.json({ message: "Transaction deleted" }, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: "Failed to delete transaction" }, { status: 500 });
     }
 }
@@ -22,7 +22,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
         const body = await req.json();
         const updatedTransaction = await Transaction.findByIdAndUpdate(id, body, { new: true });
         return NextResponse.json(updatedTransaction, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: "Failed to update transaction" }, { status: 500 });
     }
 }

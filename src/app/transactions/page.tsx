@@ -5,8 +5,19 @@ import axios from "axios";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetTrigger, SheetContent } from "@/components/ui/sheet";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import {
+    Sheet,
+    SheetTrigger,
+    SheetContent
+} from "@/components/ui/sheet";
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
@@ -29,18 +40,16 @@ const TransactionsPage = () => {
     const [editTransaction, setEditTransaction] = useState<Transaction | null>(null);
     const [deleteId, setDeleteId] = useState<Key | null>(null);
     const dataChanged = useAppStore((state) => state.dataChanged);
+    const toggleDataChanged = useAppStore((state) => state.toggleDataChanged);
+    const [transactionSheetOpen, setTransactionSheetOpen] = useState(false);
 
     useEffect(() => {
         const fetchTransactions = async () => {
             setLoading(true);
             try {
                 const res = await axios.get("/api/transactions");
-                setTransactions(
-                    res.data.transactions.sort(
-                        (a: Transaction, b: Transaction) => new Date(b.date).getTime() - new Date(a.date).getTime()
-                    )
-                );
-            } catch (error) {
+                setTransactions(res.data.transactions);
+            } catch (error: any) {
                 console.error("Failed to fetch transactions", error);
             } finally {
                 setLoading(false);
@@ -55,10 +64,10 @@ const TransactionsPage = () => {
         try {
             await axios.delete(`/api/transactions/${deleteId}`);
             setDeleteId(null);
-            useAppStore.getState().setDataChanged(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to delete transaction", error);
         }
+        toggleDataChanged();
     };
 
     const handleUpdate = async () => {
@@ -70,54 +79,52 @@ const TransactionsPage = () => {
                 category: editTransaction.category,
             });
             setEditTransaction(null);
-            useAppStore.getState().setDataChanged(true);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to update transaction", error);
         }
+        toggleDataChanged();
     };
 
     return (
-        <div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
-                <div className="lg:col-span-2 xl:col-span-2 2xl:col-span-3 flex items-center justify-between mb-5">
-                    <h1 className="text-3xl font-bold">All Transactions</h1>
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button className="mt-3">
-                                <Plus />
-                                Add Transaction
-                            </Button>
-                        </SheetTrigger>
-                        <AddTransaction />
-                    </Sheet>
-                </div>
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <h1 className="text-3xl font-bold">All Transactions</h1>
+                <Sheet open={transactionSheetOpen} onOpenChange={setTransactionSheetOpen}>
+                    <SheetTrigger asChild>
+                        <Button onClick={() => setTransactionSheetOpen(true)}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Transaction
+                        </Button>
+                    </SheetTrigger>
+                    <AddTransaction onClose={() => setTransactionSheetOpen(false)} />
+                </Sheet>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
-                <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-2 xl:col-span-2 2xl:col-span-3">
+            {/* Transactions List and Pie Chart */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                {/* Transactions List */}
+                <div className="col-span-1 lg:col-span-2 bg-primary-foreground p-4 rounded-lg">
                     {loading ? (
                         <Loader />
                     ) : (
-                        <ScrollArea className="max-h-[500px] mt-4 overflow-y-auto">
+                        <ScrollArea className="max-h-[500px] overflow-y-auto">
                             {transactions.map((tran) => (
                                 <Card
                                     key={tran._id}
-                                    className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between mb-2 mr-2"
+                                    className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between mb-2"
                                 >
                                     <CardTitle className="w-full md:w-[70%]">
                                         ₹{tran.amount} - {tran.description} ({tran.category}) on{" "}
                                         {new Date(tran.date).toLocaleDateString()}
                                     </CardTitle>
                                     <div className="w-full md:w-[30%] flex justify-end gap-2 mt-2 md:mt-0">
-                                        <Button className="px-4" onClick={() => setEditTransaction(tran)}>
-                                            Edit
-                                        </Button>
+                                        <Button onClick={() => setEditTransaction(tran)}>Edit</Button>
 
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <Button
                                                     variant="destructive"
-                                                    className="px-4"
                                                     onClick={() => setDeleteId(tran._id)}
                                                 >
                                                     Delete
@@ -148,16 +155,18 @@ const TransactionsPage = () => {
                     )}
                 </div>
 
-                <div className="bg-primary-foreground p-4 rounded-lg lg:col-span-2 xl:col-span-2 2xl:col-span-3">
+                {/* Pie Chart */}
+                <div className="bg-primary-foreground p-4 rounded-lg">
                     <AppPieChart />
                 </div>
             </div>
 
+            {/* Edit Transaction Sheet */}
             {editTransaction && (
                 <Sheet open={true} onOpenChange={(open) => !open && setEditTransaction(null)}>
                     <SheetContent>
                         <div className="p-4 space-y-4">
-                            <h2 className="text-xl font-semibold mb-4">Edit Transaction</h2>
+                            <h2 className="text-xl font-semibold">Edit Transaction</h2>
 
                             <div className="space-y-2">
                                 <Label>Amount</Label>

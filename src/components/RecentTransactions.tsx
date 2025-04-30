@@ -27,7 +27,7 @@ const RecentTransactions = () => {
         try {
             const res = await axios.get("/api/transactions");
             setRecentTransactions(res.data.recentTransactions);
-        } catch (error) {
+        } catch (error: any) {
             setErr("Failed to fetch transactions");
         } finally {
             setLoading(false);

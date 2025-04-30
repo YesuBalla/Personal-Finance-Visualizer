@@ -62,7 +62,7 @@ const AddTransaction = ({ onClose }: { onClose: () => void }) => {
             await axios.post("/api/transactions", data);
             form.reset();
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Failed to submit transaction:", error);
         } finally {
             setIsSubmitting(false);
@@ -75,7 +75,7 @@ const AddTransaction = ({ onClose }: { onClose: () => void }) => {
         try {
             const res = await axios.get("/api/categories");
             setCategories(res.data.map((category: { name: string }) => category.name));
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching categories:", error);
         }
     };
@@ -88,6 +88,7 @@ const AddTransaction = ({ onClose }: { onClose: () => void }) => {
         <SheetContent>
             <SheetHeader>
                 <SheetTitle className="mb-4">Add Transaction</SheetTitle>
+
                 <SheetDescription asChild>
                     <Form {...form}>
                         <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
@@ -170,4 +171,4 @@ const AddTransaction = ({ onClose }: { onClose: () => void }) => {
     );
 };
 
-export default AddTransaction;
+export default AddTransaction; 

@@ -15,6 +15,8 @@ import { Button } from "./ui/button"
 import axios from "axios"
 import { LoaderIcon } from "lucide-react"
 import { useState } from "react"
+import { useAppStore } from "@/stores/appStore";
+
 
 // Schema for Category validation
 const categorySchema = z.object({
@@ -27,6 +29,7 @@ const categorySchema = z.object({
 const AddCategory = ({ onClose }: { onClose: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [err, setErr] = useState<string | null>(null);
+    const toggleDataChanged = useAppStore((state) => state.toggleDataChanged);
     const form = useForm<z.infer<typeof categorySchema>>({
         resolver: zodResolver(categorySchema),
         defaultValues: {
@@ -41,11 +44,13 @@ const AddCategory = ({ onClose }: { onClose: () => void }) => {
             form.reset();
             setErr('')
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             setErr(error.message)
         } finally {
             setIsSubmitting(false);
         }
+
+        toggleDataChanged();
     };
 
     return (

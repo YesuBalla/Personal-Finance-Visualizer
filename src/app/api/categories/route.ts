@@ -7,7 +7,7 @@ export async function GET() {
         await connectDB();
         const categories = await Category.find();
         return NextResponse.json(categories);
-    } catch (error) {
+    } catch (error: any) {
         return NextResponse.json({ error: 'Server Error' }, { status: 500 });
     }
 }

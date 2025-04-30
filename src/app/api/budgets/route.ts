@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         const body = await req.json();
         const budget = await Budget.create(body);
         return NextResponse.json(budget, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         console.error("[BUDGET_POST]", error);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }

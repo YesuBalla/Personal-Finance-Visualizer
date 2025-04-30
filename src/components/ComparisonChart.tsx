@@ -16,10 +16,13 @@ import {
 import {
     ChartConfig,
     ChartContainer,
+    ChartLegend,
+    ChartLegendContent,
     ChartTooltip,
     ChartTooltipContent,
 } from "@/components/ui/chart";
 import { Loader } from "./Loader";
+import { useAppStore } from "@/stores/appStore";
 
 const chartConfig = {
     budgeted: {
@@ -36,6 +39,7 @@ const ComparisonChart = () => {
     const [transactions, setTransactions] = useState([]);
     const [budgets, setBudgets] = useState([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,7 +49,7 @@ const ComparisonChart = () => {
                 const budgetsRes = await axios.get("/api/budgets");
                 setTransactions(transactionsRes.data.transactions);
                 setBudgets(budgetsRes.data);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
@@ -53,7 +57,7 @@ const ComparisonChart = () => {
         };
 
         fetchData();
-    }, []);
+    }, [dataChanged]);
 
     const prepareChartData = () => {
         const categorySpend: { [key: string]: number } = {};
@@ -96,11 +100,13 @@ const ComparisonChart = () => {
                                 tickLine={false}
                                 tickMargin={10}
                                 axisLine={false}
+                            // tickFormatter={(value) => value.slice(0, 5)}
                             />
                             <ChartTooltip
                                 cursor={false}
                                 content={<ChartTooltipContent indicator="dashed" />}
                             />
+                            <ChartLegend content={<ChartLegendContent />} />
                             <Bar dataKey="budgeted" fill={chartConfig.budgeted.color} radius={4} />
                             <Bar dataKey="spent" fill={chartConfig.spent.color} radius={4} />
                         </BarChart>

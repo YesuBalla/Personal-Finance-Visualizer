@@ -22,6 +22,8 @@ import { Button } from "./ui/button"
 import axios from "axios"
 import { LoaderIcon } from "lucide-react"
 import { useEffect, useState } from "react"
+import { useAppStore } from "@/stores/appStore";
+
 
 export const budgetSchema = z.object({
     category: z.string().min(1, { message: "Category is required" }),
@@ -35,9 +37,11 @@ export const budgetSchema = z.object({
     ),
 })
 
-const AddBudget = () => {
+const AddBudget = ({ onClose }: { onClose: () => void }) => {
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [categories, setCategories] = useState<string[]>([])
+    const toggleDataChanged = useAppStore((state) => state.toggleDataChanged);
+    const dataChanged = useAppStore((state) => state.dataChanged);
 
     const form = useForm<z.infer<typeof budgetSchema>>({
         resolver: zodResolver(budgetSchema),
@@ -53,25 +57,28 @@ const AddBudget = () => {
         try {
             await axios.post("/api/budgets", data)
             form.reset()
-        } catch (error) {
+            onClose()
+        } catch (error: any) {
             console.error("Failed to submit budget:", error)
         } finally {
             setIsSubmitting(false)
         }
+
+        toggleDataChanged();
     }
 
     const fetchCategories = async () => {
         try {
             const res = await axios.get("/api/categories")
             setCategories(res.data.map((category: { name: any }) => category.name))
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error fetching categories:", error)
         }
     }
 
     useEffect(() => {
         fetchCategories()
-    }, [])
+    }, [dataChanged])
 
     return (
         <SheetContent>
