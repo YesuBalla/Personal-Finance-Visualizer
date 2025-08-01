@@ -21,6 +21,8 @@ Users can securely log in, manage their transactions, and gain insights into the
 
 ## 🧠 Example Transaction Categories
 
+   **Requires the user to be authenticated**
+
 Transactions generated via `/api/seed-transactions` come from a smart seed generator using realistic descriptions per category, such as:
 
 - **Food:** Grocery shopping, Coffee shop, Fast food orders
@@ -61,8 +63,8 @@ Follow these steps to run the project locally:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo-folder>
+git clone https://github.com/YesuBalla/Personal-Finance-Visualizer.git
+cd Personal-Finance-Visualizer
 ```
 
 ### 2. Install Dependencies
@@ -78,8 +80,15 @@ yarn install
 Create a `.env.local` file in the root of your project and add:
 
 ```env
-MONGODB_URI=<your-mongodb-connection-string>
-AUTH_SECRET=<your-nextauth-secret>
+MONGODB_URI=<Your MongoDB Connection String>
+AUTH_SECRET=<Your NextAuth Secret>
+
+AUTH_GOOGLE_ID=<Your Google OAuth Client ID>
+AUTH_GOOGLE_SECRET=<Your Google OAuth Client Secret>
+
+AUTH_GITHUB_ID=<Your GitHub OAuth Client ID>
+AUTH_GITHUB_SECRET=<Your GitHub OAuth Client Secret>
+
 ```
 
 ### 4. Run Development Server
@@ -108,6 +117,12 @@ Now your app will be running at `http://localhost:3000` 🎉
 ## 📈 Data Seeding Logic
 
 The app includes a dummy data generator that produces realistic transactions across 12 months, randomly selecting descriptions for each category like “Movie Ticket”, “Fuel refill”, or “Online shopping”.
+
+- Requires the user to be authenticated
+
+👉 **http://localhost:3000/api/seed-transactions**
+
+
 
 This makes testing more intuitive and enjoyable!
 
