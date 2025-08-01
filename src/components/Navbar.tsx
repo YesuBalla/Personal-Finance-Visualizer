@@ -14,10 +14,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { useTheme } from 'next-themes'
 import { SidebarTrigger } from './ui/sidebar';
+import { handleSignOut } from '@/app/actions/authActions';
+import { useSession } from 'next-auth/react';
 
 
 const Navbar = () => {
     const { theme, setTheme } = useTheme();
+    const { data: session } = useSession();
+
+    const avatarUrl = session?.user?.image || 'https://placehold.co/40x40/E5E7EB/4B5563?text=CN';
+
+    const userInitials = session?.user?.name
+        ? session.user.name.split(' ').map((n) => n[0]).join('')
+        : 'CN';
+
     return (
         <nav className='p-4 flex items-center justify-between sticky top-0 bg-background z-10'>
             {/* Left */}
@@ -50,8 +60,8 @@ const Navbar = () => {
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <Avatar>
-                            <AvatarImage src='/yesu_avatar.png' />
-                            <AvatarFallback>CN</AvatarFallback>
+                            <AvatarImage src={avatarUrl} />
+                            <AvatarFallback>{userInitials}</AvatarFallback>
                         </Avatar>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent sideOffset={10}>
@@ -67,7 +77,8 @@ const Navbar = () => {
                             <Settings className='h-[1.2rem] w-[1.2rem] mr-2' />
                             Settings
                         </DropdownMenuItem>
-                        <DropdownMenuItem variant='destructive'>
+                        {/* Logout Button */}
+                        <DropdownMenuItem variant='destructive' onClick={handleSignOut}>
                             <LogOut className='h-[1.2rem] w-[1.2rem] mr-2' />
                             Logout
                         </DropdownMenuItem>

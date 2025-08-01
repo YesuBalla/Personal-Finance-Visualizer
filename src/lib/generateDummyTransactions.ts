@@ -11,7 +11,8 @@ const categoryDescriptionsMap: { [key: string]: string[] } = {
     Travel: ["Flight ticket", "Hotel booking", "Local tour expenses", "Airport taxi"],
 };
 
-export const generateDummyTransactions = (count: number = 48) => {
+// Updated to accept a userId and a count
+export const generateDummyTransactions = (userId: string, count: number = 48) => {
     const transactions = [];
     const categories = Object.keys(categoryDescriptionsMap);
 
@@ -40,6 +41,7 @@ export const generateDummyTransactions = (count: number = 48) => {
             date.setDate(dayOfMonth);
 
             transactions.push({
+                userId,
                 amount: randomAmount,
                 category: randomCategory,
                 description: randomDescription,

@@ -5,6 +5,9 @@ import AppSidebar from "@/components/AppSidebar";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { SessionProvider } from 'next-auth/react'
+import { auth } from '@/lib/auth';
+import SessionSyncProvider from "@/components/providers/SessionSyncProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,31 +24,46 @@ export const metadata: Metadata = {
   description: "Created by Yesu Balla",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const session = await auth();
+
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+    <SessionProvider session={session}>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased flex`}
         >
-          <SidebarProvider>
-            <AppSidebar />
-            <main className="w-full">
-              <Navbar />
-              <div className="px-4">{children}</div>
-            </main>
-          </SidebarProvider>
-        </ThemeProvider>
-      </body>
-    </html >
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SessionSyncProvider user={session?.user ?? null} />
+            {session?.user ?
+              (
+                <SidebarProvider>
+                  <AppSidebar />
+                  <main className="w-full">
+                    <Navbar />
+                    <div className="px-4">{children}</div>
+                  </main>
+                </SidebarProvider>
+
+              ) :
+              (
+                <main className="w-full min-h-screen flex items-center justify-center px-4">
+                  {children}
+                </main>
+              )}
+          </ThemeProvider>
+        </body>
+      </html >
+    </SessionProvider>
   );
 }

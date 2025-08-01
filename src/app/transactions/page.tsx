@@ -8,7 +8,11 @@ import { Button } from "@/components/ui/button";
 import {
     Sheet,
     SheetTrigger,
-    SheetContent
+    SheetContent,
+    SheetHeader, // Import SheetHeader
+    SheetTitle,   // Import SheetTitle
+    SheetFooter, // Import SheetFooter
+    SheetDescription, // Import SheetDescription for better accessibility
 } from "@/components/ui/sheet";
 import {
     Dialog,
@@ -16,7 +20,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogFooter,
-    DialogTitle
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -165,12 +169,20 @@ const TransactionsPage = () => {
             {editTransaction && (
                 <Sheet open={true} onOpenChange={(open) => !open && setEditTransaction(null)}>
                     <SheetContent>
-                        <div className="p-4 space-y-4">
-                            <h2 className="text-xl font-semibold">Edit Transaction</h2>
+                        {/* The h2 has been replaced with SheetTitle for accessibility. */}
+                        <SheetHeader>
+                            <SheetTitle>Edit Transaction</SheetTitle>
+                            <SheetDescription>
+                                Update the details of your transaction here. Click save when you're done.
+                            </SheetDescription>
+                        </SheetHeader>
 
+                        {/* The rest of the form content */}
+                        <div className="p-4 space-y-4 flex-1">
                             <div className="space-y-2">
-                                <Label>Amount</Label>
+                                <Label htmlFor="amount">Amount</Label>
                                 <Input
+                                    id="amount"
                                     type="number"
                                     value={editTransaction.amount}
                                     onChange={(e) =>
@@ -180,8 +192,9 @@ const TransactionsPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Description</Label>
+                                <Label htmlFor="description">Description</Label>
                                 <Input
+                                    id="description"
                                     value={editTransaction.description}
                                     onChange={(e) =>
                                         setEditTransaction({ ...editTransaction, description: e.target.value })
@@ -190,19 +203,21 @@ const TransactionsPage = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Category</Label>
+                                <Label htmlFor="category">Category</Label>
                                 <Input
+                                    id="category"
                                     value={editTransaction.category}
                                     onChange={(e) =>
                                         setEditTransaction({ ...editTransaction, category: e.target.value })
                                     }
                                 />
                             </div>
-
-                            <Button onClick={handleUpdate} className="w-full mt-4">
+                        </div>
+                        <SheetFooter className="p-4 border-t">
+                            <Button onClick={handleUpdate} className="w-full">
                                 Update Transaction
                             </Button>
-                        </div>
+                        </SheetFooter>
                     </SheetContent>
                 </Sheet>
             )}

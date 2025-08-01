@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState } from "react";
 import { BadgeIndianRupee, BanknoteArrowDown, BriefcaseBusiness, ChevronDown, ChevronUp, LayoutDashboard, Plus, Projector, Sparkles, User2 } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubItem, SidebarSeparator } from "./ui/sidebar"
 import Link from "next/link"
@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/sheet"
 import AddTransaction from "./AddTransaction"
 import AddCategory from "./AddCategory"
+import { useAppStore } from "@/stores/appStore";
+import { handleSignOut } from "@/app/actions/authActions";
+import { LogOut, Settings, User } from 'lucide-react'
+
 
 const items = [
   {
@@ -45,6 +49,7 @@ const items = [
 const AppSidebar = () => {
   const [transactionSheetOpen, setTransactionSheetOpen] = useState(false);
   const [categorySheetOpen, setCategorySheetOpen] = useState(false);
+  const user = useAppStore((state) => state.user);
 
   return (
     <Sidebar collapsible="icon">
@@ -52,9 +57,16 @@ const AppSidebar = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href='/'>
-                <Image src='/yardsticklive_logo.jpeg' alt="logo" width={30} height={40} />
-                <span>Yardstick</span>
+              <Link href='/' className="flex items-center">
+                <Image
+                  src='https://ik.imagekit.io/fmyeeukr7/finance-logo-simple-golden-color-concept-template-2R454WX-removebg-preview.png'
+                  alt="logo"
+                  width={70}
+                  height={80}
+                />
+                <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
+                  FinVisual
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -154,13 +166,23 @@ const AppSidebar = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton>
-                  <User2 /> Yesu Balla <ChevronUp className="ml-auto" />
+                  <User2 /> {user?.name} <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>Account</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Sign out</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <User className='h-[1.2rem] w-[1.2rem] mr-2' />
+                  Account
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className='h-[1.2rem] w-[1.2rem] mr-2' />
+                  Settings
+                </DropdownMenuItem>
+                {/* Logout Button */}
+                <DropdownMenuItem variant='destructive' onClick={handleSignOut}>
+                  <LogOut className='h-[1.2rem] w-[1.2rem] mr-2' />
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

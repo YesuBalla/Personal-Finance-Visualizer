@@ -1,12 +1,18 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
+        port: '',
+        pathname: '/fmyeeukr7/**',
+      },
+    ],
+  },
   eslint: {
-
     ignoreDuringBuilds: true,
   },
   typescript: {
-
     ignoreBuildErrors: true,
   },
 };

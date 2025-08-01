@@ -9,7 +9,6 @@ export async function POST(req: Request) {
         const budget = await Budget.create(body);
         return NextResponse.json(budget, { status: 201 });
     } catch (error: any) {
-        console.error("[BUDGET_POST]", error);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }
 }
@@ -20,7 +19,6 @@ export async function GET() {
         const budgets = await Budget.find().sort({ month: -1 });
         return NextResponse.json(budgets, { status: 200 });
     } catch (error) {
-        console.error("[BUDGET_GET]", error);
         return NextResponse.json({ error: "Server Error" }, { status: 500 });
     }
 }
