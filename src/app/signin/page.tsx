@@ -31,15 +31,7 @@ export default function SignIn() {
 
 
     useEffect(() => {
-        if (status === 'authenticated') {
-            router.replace('/');
-        }
-    }, [status, router]);
-
-
-    // Handle errors passed via URL parameters (e.g., from OAuth callbacks)
-    useEffect(() => {
-        if (errorParam) {
+        if (errorParam && status === 'unauthenticated') {
             switch (errorParam) {
                 case 'OAuthAccountNotLinked':
                     setGlobalError('An account with this email exists but is linked to another provider. Please sign in with your other method.');
@@ -47,10 +39,14 @@ export default function SignIn() {
                 default:
                     setGlobalError('An unexpected error occurred. Please try again.');
             }
-            // clear the error parameter from the URL after displaying it
-            router.replace('/signin');
+
+            // clear the error from the URL *after* showing it
+            const newParams = new URLSearchParams(window.location.search);
+            newParams.delete('error');
+            const newUrl = window.location.pathname + (newParams.toString() ? `?${newParams.toString()}` : '');
+            router.replace(newUrl);
         }
-    }, [errorParam]);
+    }, [errorParam, status, router]);
 
 
     // Initialize react-hook-form
